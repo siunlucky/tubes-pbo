@@ -1,0 +1,8 @@
+version: '3'
+services:
+  lysaai-core-api:
+    image: kanzen523/tubes:latest
+    container_name: tubes
+    restart: always # Always restart 
+    ports:
+      - "8080:8080" # Left side is host port, right side is container port

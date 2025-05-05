@@ -1,0 +1,67 @@
+name: Build and Deploy
+
+on:
+  push:
+    branches:
+      - '**'
+  pull_request:
+    branches: 
+      - '**'  # Trigger on all branches
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: Set up JDK 23
+      uses: actions/setup-java@v4
+      with:
+        java-version: '23'
+        distribution: 'temurin'
+        cache: maven
+    - name: Load variables
+      run: |
+        touch .env
+        echo POSTGRES_HOST=${{ secrets.POSTGRES_HOST }} >> .env
+        echo POSTGRES_PORT=${{ secrets.POSTGRES_PORT }} >> .env
+        echo POSTGRES_DB=${{ secrets.POSTGRES_DB }} >> .env
+        echo POSTGRES_USER=${{ secrets.POSTGRES_USER }} >> .env
+        echo POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }} >> .env
+        
+        echo JWT_SECRET=${{ secrets.JWT_SECRET }} >> .env
+        echo JWT_EXPIRATION=${{ secrets.JWT_EXPIRATION }} >> .env
+        echo JWT_REFRESH_EXPIRATION=${{ secrets.JWT_REFRESH_EXPIRATION }} >> .env
+    - name: Build with Maven
+      run: mvn clean install
+
+  deploy:
+    if: github.ref == 'refs/heads/main'  # Only run on main branch
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Build & push Docker image
+      uses: mr-smithers-excellent/docker-build-push@v6
+      with:
+        image: kanzen523/tubes
+        tags: latest
+        registry: docker.io
+        dockerfile: Dockerfile
+        username: ${{ secrets.DOCKER_USERNAME }}
+        password: ${{ secrets.DOCKER_PASSWORD }}
+
+    - name: Deploy app
+      uses: appleboy/ssh-action@master
+      with:
+        host: ${{ secrets.HOST }}
+        username: ${{ secrets.USERNAME }}
+        key: ${{ secrets.SSH_PRIVATE_KEY }}
+        passphrase: ${{ secrets.SSH_PASSPHRASE }}
+        script: |
+          cd /home/dev/
+          docker-compose down
+          docker-compose pull
+          docker-compose up -d
+          docker system prune -f
