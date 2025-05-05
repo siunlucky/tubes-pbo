@@ -28,7 +28,6 @@ jobs:
         echo POSTGRES_DB=${{ secrets.POSTGRES_DB }} >> .env
         echo POSTGRES_USER=${{ secrets.POSTGRES_USER }} >> .env
         echo POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }} >> .env
-        
         echo JWT_SECRET=${{ secrets.JWT_SECRET }} >> .env
         echo JWT_EXPIRATION=${{ secrets.JWT_EXPIRATION }} >> .env
         echo JWT_REFRESH_EXPIRATION=${{ secrets.JWT_REFRESH_EXPIRATION }} >> .env
@@ -60,7 +59,9 @@ jobs:
         key: ${{ secrets.SSH_PRIVATE_KEY }}
         passphrase: ${{ secrets.SSH_PASSPHRASE }}
         script: |
-          cd /home/dev/
+          cd /home/dev/Project/Faiz/BE
+          git reset --hard HEAD
+          git pull origin main --rebase
           docker-compose down
           docker-compose pull
           docker-compose up -d
