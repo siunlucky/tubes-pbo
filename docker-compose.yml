@@ -5,5 +5,5 @@ services:
     restart: always # Always restart 
     ports:
       - "8080:8080" # Left side is host port, right side is container port
-    env_file:
-      - .env
+    # env_file:
+    #   - .env
