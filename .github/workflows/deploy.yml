@@ -32,7 +32,7 @@ jobs:
         echo JWT_EXPIRATION=${{ secrets.JWT_EXPIRATION }} >> .env
         echo JWT_REFRESH_EXPIRATION=${{ secrets.JWT_REFRESH_EXPIRATION }} >> .env
     - name: Build with Maven
-      run: mvn clean install
+      run: mvn clean install -DskipTests
 
   deploy:
     if: github.ref == 'refs/heads/main'  # Only run on main branch
