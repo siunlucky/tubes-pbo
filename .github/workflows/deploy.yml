@@ -78,7 +78,7 @@ jobs:
           cd /home/dev/Project/Faiz/BE
           git reset --hard HEAD
           git pull origin main --rebase
-          docker-compose down
-          docker-compose pull
-          docker-compose up -d
+          docker compose down
+          docker compose pull
+          docker compose up -d
           docker system prune -f

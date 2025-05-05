@@ -1,6 +1,6 @@
 version: '3'
 services:
-  lysaai-core-api:
+  tubes-api:
     image: kanzen523/tubes:latest
     container_name: tubes
     restart: always # Always restart 
