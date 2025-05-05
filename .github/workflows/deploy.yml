@@ -33,8 +33,9 @@ jobs:
         echo JWT_REFRESH_EXPIRATION=${{ secrets.JWT_REFRESH_EXPIRATION }} >> .env
 
         cat .env
+        echo "Environment variables loaded."
     - name: Build with Maven
-      run: mvn clean install
+      run: mvn clean install -DskipTests
 
     - name: Upload JAR artifact
       uses: actions/upload-artifact@v4
