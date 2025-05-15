@@ -24,11 +24,8 @@ public class UserController {
     @Autowired
     private UserService service;
 
-    public void test(){
+    public void test() {
         System.out.println("test");
-        System.out.println("test2");
-        System.out.println("test3");
-        System.out.println("kampretttttttttt");
     }
     
     @GetMapping
