@@ -1,13 +1,25 @@
 package com.example.tubes.model;
 
+import jakarta.persistence.*;
 import java.util.Date;
 
-public class Income extends Transaction{
-    private String source;
-    private String category;
 
-    public Income(Long id, double amount, Date date, String desc, String source, String category) {
-        super(id, amount, date, desc);
+@Entity
+@Table(name = "incomes")
+public class Income extends Transaction{
+    @Column(nullable = false)
+    private String source;
+    
+    @Column(nullable = false)
+    private String category;
+    
+    public Income() {
+        super();
+    }
+
+    public Income(Long id, double amount, Date date, String description, String source, String category) {
+        super(id, amount, date, description);
+        setID(id);
         this.source = source;
         this.category = category;
     }
