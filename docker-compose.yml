@@ -30,4 +30,3 @@ volumes:
 
 networks:
   tubes-network:
-    external: true
