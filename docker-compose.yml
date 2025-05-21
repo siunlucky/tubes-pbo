@@ -9,7 +9,7 @@ services:
       - .env
     networks:
       - tubes-network
-      
+
   postgres-dev:
     image: postgres:latest
     container_name: postgres-dev
@@ -17,13 +17,16 @@ services:
     ports:
       - "5432:5432" # Left side is host port, right side is container port
     environment:
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_DB: tubes
+      POSTGRES_USER: kanzen
+      POSTGRES_PASSWORD: Prj977je94.
     volumes:
       - postgres-data:/var/lib/postgresql/data
     networks:
       - tubes-network
+
+volumes:
+  postgres-data:
 
 networks:
   tubes-network:
