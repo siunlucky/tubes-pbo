@@ -13,10 +13,8 @@ import com.example.tubes.model.TokenBlacklist;
 public interface TokenBlacklistRepository extends JpaRepository<TokenBlacklist, Long> {
     Optional<TokenBlacklist> findByToken(String token);
     
-    // Menghapus semua token yang sudah expired
     @Query("DELETE FROM TokenBlacklist t WHERE t.expiryDate < :now")
     void deleteExpiredTokens(@Param("now") Date now);
     
-    // Mencari semua token yang sudah expired
     List<TokenBlacklist> findByExpiryDateBefore(Date date);
 }
