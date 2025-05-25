@@ -24,10 +24,6 @@ public class Income extends Transaction{
         this.category = category;
     }
 
-    public double getSummary() {
-        return -1*super.getAmount();
-    }
-
     public String getSource() {
         return this.source;
     }
@@ -44,4 +40,8 @@ public class Income extends Transaction{
         this.category = category;
     }
     
+    @Override
+    public double getSummary() {
+        return -1*super.getAmount(); // really?
+    }
 }

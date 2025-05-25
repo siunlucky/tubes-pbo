@@ -1,153 +1,107 @@
 package com.example.tubes.controller;
 
-import com.example.tubes.model.Transaction;
 import com.example.tubes.model.Wallet;
 import com.example.tubes.services.WalletService;
+import com.example.tubes.utils.ApiResponse;
+import com.example.tubes.exception.ResourceNotFoundException;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Map;
 
 
 @RestController
-@RequestMapping("/api/users/wallet")
+@RequestMapping("/api/wallets")
 public class WalletController {
     @Autowired
     private WalletService walletService;
     
     @GetMapping
-    public ResponseEntity<List<Wallet>> getUserWallets(@RequestAttribute("userId") int userId) {
-        List<Wallet> wallets = walletService.getUserWallets(userId);
-        return ResponseEntity.ok(wallets);
-    }
+    public ResponseEntity<ApiResponse<List<Wallet>>> getAllWallets() {
+        try {
+            List<Wallet> wallets = walletService.getAllWallets();
+            return ResponseEntity.ok(ApiResponse.success(wallets, "All wallets retrieved successfully"));
+        } catch (RuntimeException e) {
+            return ResponseEntity.internalServerError().body(ApiResponse.error("Internal server error", HttpStatus.INTERNAL_SERVER_ERROR.value()));
+        }
+    }   
     
     @GetMapping("/{id}")
-    public ResponseEntity<Wallet> getWalletById(
-            @PathVariable("id") int walletId,
-            @RequestAttribute("userId") int userId) {
-        
-        Wallet wallet = walletService.getWalletById(walletId, userId);
-        if (wallet == null) {
-            return ResponseEntity.notFound().build();
+    public ResponseEntity<ApiResponse<Wallet>> getWalletById(@PathVariable Long id) {
+        try {
+            Wallet wallet = walletService.getWalletById(id);
+            return ResponseEntity.ok(ApiResponse.success(wallet, "Wallet retrieved successfully"));
+        } catch (ResourceNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(ApiResponse.error(e.getMessage(), HttpStatus.NOT_FOUND.value()));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ApiResponse.error("Internal server error", HttpStatus.INTERNAL_SERVER_ERROR.value()));
         }
-        return ResponseEntity.ok(wallet);
     }
-    
+
     @PostMapping
-    public ResponseEntity<Wallet> createWallet(
-            @RequestBody Wallet wallet,
-            @RequestAttribute("userId") Long userId) {
-        
-        Wallet createdWallet = walletService.createWallet(wallet, userId);
-        return ResponseEntity.status(HttpStatus.CREATED).body(createdWallet);
+    public ResponseEntity<ApiResponse<Wallet>> createWallet(@RequestBody Wallet wallet) {
+        try {
+            Wallet createdWallet = walletService.createWallet(wallet);
+            return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success(createdWallet, "Wallet created successfully", 201));
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(ApiResponse.error(e.getMessage(), HttpStatus.BAD_REQUEST.value()));
+        }
     }
     
     @PutMapping("/{id}")
-    public ResponseEntity<Wallet> updateWallet(
-            @PathVariable("id") int walletId,
-            @RequestBody Wallet walletDetails,
-            @RequestAttribute("userId") int userId) {
-        
+    public ResponseEntity<ApiResponse<Wallet>> updateWallet(@PathVariable Long id, @RequestBody Wallet wallet) {
         try {
-            Wallet updatedWallet = walletService.updateWallet(walletId, walletDetails, userId);
-            return ResponseEntity.ok(updatedWallet);
+            if (wallet.getId() != null && !wallet.getId().equals(id)) {
+                throw new RuntimeException("Wallet ID in the request body does not match the path variable");
+            }
+            Wallet updatedWallet = walletService.updateWallet(id, wallet);
+            return ResponseEntity.ok(ApiResponse.success(updatedWallet, "Wallet updated successfully"));
         } catch (RuntimeException e) {
-            return ResponseEntity.notFound().build();
+            return ResponseEntity.badRequest().body(ApiResponse.error(e.getMessage(), HttpStatus.BAD_REQUEST.value()));
         }
     }
-    
+
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteWallet(
-            @PathVariable("id") int walletId,
-            @RequestAttribute("userId") int userId) {
-        
+    public ResponseEntity<ApiResponse<Void>> deleteWallet(@PathVariable Long id) {
         try {
-            walletService.deleteWallet(walletId, userId);
-            return ResponseEntity.noContent().build();
+            walletService.deleteWallet(id);
+            return ResponseEntity.ok(ApiResponse.success(null, "Wallet deleted successfully"));
         } catch (RuntimeException e) {
-            return ResponseEntity.notFound().build();
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ApiResponse.error(e.getMessage(), HttpStatus.NOT_FOUND.value()));
         }
     }
-    
-    @PostMapping("/{id}/transactions")
-    public ResponseEntity<Void> addTransaction(
-            @PathVariable("id") int walletId,
-            @RequestBody Transaction transaction,
-            @RequestAttribute("userId") int userId) {
-        
+
+    @GetMapping("/{id}/balance")
+    public ResponseEntity<ApiResponse<Double>> getWalletBalance(@PathVariable Long id) {
         try {
-            walletService.addTransaction(transaction, walletId, userId);
-            return ResponseEntity.status(HttpStatus.CREATED).build();
+            double balance = walletService.calculateWalletBalance(id);
+            return ResponseEntity.ok(ApiResponse.success(balance, "Wallet balance retrieved successfully"));
         } catch (RuntimeException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ApiResponse.error(e.getMessage(), HttpStatus.NOT_FOUND.value()));
         }
     }
-    
-    @GetMapping("/{id}/statistics")
-    public ResponseEntity<Map<String, Object>> getWalletStatistics(
-            @PathVariable("id") int walletId,
-            @RequestAttribute("userId") int userId) {
-        
+
+    @GetMapping("/{id}/expense")
+    public ResponseEntity<ApiResponse<Double>> getTotalExpense(@PathVariable Long id) {
         try {
-            Map<String, Object> statistics = walletService.getWalletSummary(walletId, userId);
-            return ResponseEntity.ok(statistics);
+            double expense = walletService.getTotalExpense(id);
+            return ResponseEntity.ok(ApiResponse.success(expense, "Total expense retrieved successfully"));
         } catch (RuntimeException e) {
-            return ResponseEntity.notFound().build();
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ApiResponse.error(e.getMessage(), HttpStatus.NOT_FOUND.value()));
         }
     }
-    
-    @PostMapping("/{id}/calculate-balance")
-    public ResponseEntity<Void> calculateBalance(
-            @PathVariable("id") int walletId,
-            @RequestAttribute("userId") int userId) {
-        
+
+    @GetMapping("/{id}/income")
+    public ResponseEntity<ApiResponse<Double>> getTotalIncome(@PathVariable Long id) {
         try {
-            walletService.calculateBalance(walletId, userId);
-            return ResponseEntity.ok().build();
+            double income = walletService.getTotalIncome(id);
+            return ResponseEntity.ok(ApiResponse.success(income, "Total income retrieved successfully"));
         } catch (RuntimeException e) {
-            return ResponseEntity.notFound().build();
-        }
-    }
-    
-    @GetMapping("/{id}/total-expense")
-    public ResponseEntity<Double> getTotalExpense(
-            @PathVariable("id") int walletId,
-            @RequestAttribute("userId") int userId) {
-        
-        try {
-            double totalExpense = walletService.getTotalExpense(walletId, userId);
-            return ResponseEntity.ok(totalExpense);
-        } catch (RuntimeException e) {
-            return ResponseEntity.notFound().build();
-        }
-    }
-    
-    @GetMapping("/{id}/total-income")
-    public ResponseEntity<Double> getTotalIncome(
-            @PathVariable("id") int walletId,
-            @RequestAttribute("userId") int userId) {
-        
-        try {
-            double totalIncome = walletService.getTotalIncome(walletId, userId);
-            return ResponseEntity.ok(totalIncome);
-        } catch (RuntimeException e) {
-            return ResponseEntity.notFound().build();
-        }
-    }
-    
-    @GetMapping("/{id}/export-csv")
-    public ResponseEntity<String> exportToCSV(
-            @PathVariable("id") int walletId,
-            @RequestAttribute("userId") int userId) {
-        
-        try {
-            walletService.exportToCSV(walletId, userId);
-            return ResponseEntity.ok("CSV export started successfully");
-        } catch (RuntimeException e) {
-            return ResponseEntity.notFound().build();
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ApiResponse.error(e.getMessage(), HttpStatus.NOT_FOUND.value()));
         }
     }
 }

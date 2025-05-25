@@ -19,7 +19,6 @@ public class Expense extends Transaction {
 
     public Expense (Long id, double amount, Date date, String desc, String destination, String category) {
         super(id, amount, date, desc);
-        setID(id);
         this.destination = destination;
         this.category = category;
     }
@@ -40,6 +39,7 @@ public class Expense extends Transaction {
         this.category = category;
     }
 
+    @Override
     public double getSummary() {
         return super.getAmount();
     }
