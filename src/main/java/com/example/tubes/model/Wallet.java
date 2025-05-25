@@ -2,7 +2,9 @@ package com.example.tubes.model;
 
 import jakarta.persistence.*;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 
 @Entity
@@ -10,7 +12,7 @@ import java.util.List;
 public class Wallet implements Exportable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+    private Long id;
 
     @Column(nullable = false)
     private String name;
@@ -19,7 +21,7 @@ public class Wallet implements Exportable {
     private double balance;
     
     @ManyToOne
-    @JoinColumn(name = "user_id", nullable = false)
+    @JoinColumn(name = "user_id")
     private User user;
     
     @OneToMany(mappedBy = "wallet", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -28,27 +30,61 @@ public class Wallet implements Exportable {
     public Wallet() {
     }
     
-    public Wallet(String name, User user) {
+    public Wallet(String name, double balance) {
         this.name = name;
-        this.user = user;
-        this.balance = 0.0;
+        this.balance = balance; 
     }
     
+    public Long getId() {
+        return id;
+    }
+    
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+    
+    public void setName(String name) {
+        this.name = name;
+    }
+    
+    public double getBalance() {
+        return balance;
+    }
+    
+    public void setBalance(double balance) {
+        this.balance = balance;
+    }
+
+    public User getUser() {
+        return user;
+    }
+    
+    public void setUser(User user) {
+        this.user = user;
+    }
+
+    public List<Transaction> getTransactions() {
+        return transactions;
+    }
+    
+    public void setTransactions(List<Transaction> transactions) {
+        this.transactions = transactions;
+    }
+
     public void addTransaction(Transaction transaction) {
         transactions.add(transaction);
         transaction.setWallet(this);
         calculateBalance();
     }
     
-    public void showStatistics() {
-        double totalIncome = getTotalIncome();
-        double totalExpense = getTotalExpense();
-        
-        System.out.println("Wallet: " + name);
-        System.out.println("Current Balance: " + balance);
-        System.out.println("Total Income: " + totalIncome);
-        System.out.println("Total Expense: " + totalExpense);
-        System.out.println("Number of Transactions: " + transactions.size());
+    public void removeTransaction(Transaction transaction) {
+        transactions.remove(transaction);
+        transaction.setWallet(null);
+        calculateBalance();
     }
     
     public void calculateBalance() {
@@ -71,49 +107,46 @@ public class Wallet implements Exportable {
                 .sum();
     }
     
-    public User getUser() {
-        return this.user;
+    public Map<String, Object> showStatistics() {
+        double totalIncome = getTotalIncome();
+        double totalExpense = getTotalExpense();
+        
+        Map<String, Object> stats = new HashMap<>();
+        stats.put("walletName", name);
+        stats.put("currentBalance", balance);
+        stats.put("totalIncome", totalIncome);
+        stats.put("totalExpense", totalExpense);
+        stats.put("transactionCount", transactions.size());
+        
+        return stats;
     }
-    
-    @Override
-    public void exportToCSV() {
-        System.out.println("Exporting wallet " + name + " data to CSV...");
-        // Logic to export transactions to CSV file need to be implemented here
-    }
-    
-    public int getId() {
-        return id;
-    }
-    
-    public void setId(int id) {
-        this.id = id;
-    }
-    
-    public String getName() {
-        return name;
-    }
-    
-    public void setName(String name) {
-        this.name = name;
-    }
-    
-    public double getBalance() {
-        return balance;
-    }
-    
-    public void setBalance(double balance) {
-        this.balance = balance;
-    }
-    
-    public List<Transaction> getTransactions() {
-        return transactions;
-    }
-    
-    public void setTransactions(List<Transaction> transactions) {
-        this.transactions = transactions;
-    }
-    
-    public void setUser(User user) {
-        this.user = user;
+
+    // @Override
+    public String exportToCSV() {
+        StringBuilder csv = new StringBuilder();
+        csv.append("id,date,description,amount,type,category,source/destination\n");
+        
+        for (Transaction transaction : transactions) {
+            csv.append(transaction.getID()).append(",");
+            csv.append(transaction.getDate()).append(",");
+            csv.append("\"").append(transaction.getDescription()).append("\",");
+            csv.append(transaction.getAmount()).append(",");
+            
+            if (transaction instanceof Income) {
+                Income income = (Income) transaction;
+                csv.append("income,");
+                csv.append(income.getCategory()).append(",");
+                csv.append(income.getSource());
+            } else if (transaction instanceof Expense) {
+                Expense expense = (Expense) transaction;
+                csv.append("expense,");
+                csv.append(expense.getCategory()).append(",");
+                csv.append(expense.getDestination());
+            }
+            
+            csv.append("\n");
+        }
+        
+        return csv.toString();
     }
 }

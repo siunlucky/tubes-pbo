@@ -1,5 +1,6 @@
 package com.example.tubes.services;
 
+import com.example.tubes.exception.ResourceNotFoundException;
 import com.example.tubes.model.Transaction;
 import com.example.tubes.model.Wallet;
 import com.example.tubes.model.User;
@@ -7,11 +8,8 @@ import com.example.tubes.repository.WalletRepository;
 import com.example.tubes.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Map;
-import java.util.Optional;
 
 
 @Service
@@ -20,123 +18,75 @@ public class WalletService {
     private WalletRepository walletRepository;
 
     @Autowired
-    private UserRepository userRepository;
+    private UserService userService;
 
-    public List<Wallet> getUserWallets(int userId) {
-        return walletRepository.findByUserId(userId);
+    public List<Wallet> getAllWallets() {
+        User currentUser = userService.getCurrentUser();
+        return walletRepository.findByUser(currentUser);
     }
-    
-    public Wallet getWalletById(int walletId, int userId) {
-        return walletRepository.findByIdAndUserId(walletId, userId);
+
+    public Wallet getWalletById(Long id) {
+        User currentUser = userService.getCurrentUser();
+        return walletRepository.findByIdAndUserId(id, currentUser.getId())
+                .orElseThrow(() -> new ResourceNotFoundException("Wallet not found with id: " + id));
     }
-    
-    @Transactional
-    public Wallet createWallet(Wallet wallet, Long userId) {
-        Optional<User> userOptional = userRepository.findById(userId);
-        if (userOptional.isEmpty()) {
-            throw new RuntimeException("User not found");
-        }
-        
-        if (walletRepository.existsByNameAndUserId(wallet.getName(), userId)) {
+
+    public Wallet createWallet(Wallet wallet) {
+        User currentUser = userService.getCurrentUser();
+        if (walletRepository.existsByNameAndUserId(wallet.getName(), currentUser.getId())) {
             throw new RuntimeException("Wallet with this name already exists");
         }
-        
-        wallet.setUser(userOptional.get());
-        wallet.setBalance(0.0);
+
+        wallet.setUser(currentUser);
         return walletRepository.save(wallet);
     }
-    
-    @Transactional
-    public Wallet updateWallet(int walletId, Wallet walletDetails, int userId) {
-        Wallet wallet = walletRepository.findByIdAndUserId(walletId, userId);
-        if (wallet == null) {
-            throw new RuntimeException("Wallet not found or doesn't belong to user");
-        }
-        
-        wallet.setName(walletDetails.getName());
-        return walletRepository.save(wallet);
+
+    public Wallet updateWallet(Long id, Wallet walletData) {
+        User currentUser = userService.getCurrentUser();
+        return walletRepository.findByIdAndUserId(id, currentUser.getId())
+                .map(wallet -> {
+                    wallet.setName(walletData.getName());
+                    wallet.setBalance(walletData.getBalance());
+                    return walletRepository.save(wallet);
+                })
+                .orElseThrow(() -> new ResourceNotFoundException("Wallet not found with id: " + id));
     }
-    
-    @Transactional
-    public void deleteWallet(int walletId, int userId) {
-        Wallet wallet = walletRepository.findByIdAndUserId(walletId, userId);
-        if (wallet == null) {
-            throw new RuntimeException("Wallet not found or doesn't belong to user");
-        }
-        
+
+    public void deleteWallet(Long id) {
+        User currentUser = userService.getCurrentUser();
+        Wallet wallet = walletRepository.findByIdAndUserId(id, currentUser.getId())
+                .orElseThrow(() -> new ResourceNotFoundException("Wallet not found with id: " + id));
         walletRepository.delete(wallet);
     }
-    
-    @Transactional
-    public void addTransaction(Transaction transaction, int walletId, int userId) {
-        Wallet wallet = walletRepository.findByIdAndUserId(walletId, userId);
-        if (wallet == null) {
-            throw new RuntimeException("Wallet not found or doesn't belong to user");
-        }
-        
+
+    public Wallet addTransaction(Long walletId, Transaction transaction) {
+        Wallet wallet = getWalletById(walletId);
         wallet.addTransaction(transaction);
+        return walletRepository.save(wallet);
+    }
+
+    public void removeTransaction(Long walletId, Long transactionId) {
+        Wallet wallet = getWalletById(walletId);
+        wallet.getTransactions().stream()
+                .filter(t -> t.getID().equals(transactionId))
+                .findFirst()
+                .ifPresent(wallet::removeTransaction);
         walletRepository.save(wallet);
     }
-    
-    public void showStatistics(int walletId, int userId) {
-        Wallet wallet = walletRepository.findByIdAndUserId(walletId, userId);
-        if (wallet == null) {
-            throw new RuntimeException("Wallet not found or doesn't belong to user");
-        }
-        
-        wallet.showStatistics();
-    }
-    
-    public void calculateBalance(int walletId, int userId) {
-        Wallet wallet = walletRepository.findByIdAndUserId(walletId, userId);
-        if (wallet == null) {
-            throw new RuntimeException("Wallet not found or doesn't belong to user");
-        }
-        
+
+    public double calculateWalletBalance(Long walletId) {
+        Wallet wallet = getWalletById(walletId);
         wallet.calculateBalance();
-        walletRepository.save(wallet);
+        return walletRepository.save(wallet).getBalance();
     }
     
-    public double getTotalExpense(int walletId, int userId) {
-        Wallet wallet = walletRepository.findByIdAndUserId(walletId, userId);
-        if (wallet == null) {
-            throw new RuntimeException("Wallet not found or doesn't belong to user");
-        }
-        
+    public double getTotalExpense(Long walletId) {
+        Wallet wallet = getWalletById(walletId);
         return wallet.getTotalExpense();
     }
     
-    public double getTotalIncome(int walletId, int userId) {
-        Wallet wallet = walletRepository.findByIdAndUserId(walletId, userId);
-        if (wallet == null) {
-            throw new RuntimeException("Wallet not found or doesn't belong to user");
-        }
-        
+    public double getTotalIncome(Long walletId) {
+        Wallet wallet = getWalletById(walletId);
         return wallet.getTotalIncome();
-    }
-    
-    public void exportToCSV(int walletId, int userId) {
-        Wallet wallet = walletRepository.findByIdAndUserId(walletId, userId);
-        if (wallet == null) {
-            throw new RuntimeException("Wallet not found or doesn't belong to user");
-        }
-        
-        wallet.exportToCSV();
-    }
-    
-    public Map<String, Object> getWalletSummary(int walletId, int userId) {
-        Wallet wallet = walletRepository.findByIdAndUserId(walletId, userId);
-        if (wallet == null) {
-            throw new RuntimeException("Wallet not found or doesn't belong to user");
-        }
-        
-        return Map.of(
-            "walletId", wallet.getId(),
-            "walletName", wallet.getName(),
-            "balance", wallet.getBalance(),
-            "totalIncome", wallet.getTotalIncome(),
-            "totalExpense", wallet.getTotalExpense(),
-            "transactionCount", wallet.getTransactions().size()
-        );
     }
 }
