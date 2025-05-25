@@ -1,5 +1,6 @@
 package com.example.tubes.utils;
 
+import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
@@ -28,5 +29,19 @@ public class JwtUtil {
                 .parseClaimsJws(token)
                 .getBody()
                 .getSubject();
+    }
+
+    public static Date getExpirationDateFromToken(String token) {
+    Claims claims = Jwts.parserBuilder()
+            .setSigningKey(key)
+            .build()
+            .parseClaimsJws(token)
+            .getBody();
+    return claims.getExpiration();
+    }
+
+    public static boolean isTokenExpired(String token) {
+        Date expiration = getExpirationDateFromToken(token);
+        return expiration.before(new Date());
     }
 }
