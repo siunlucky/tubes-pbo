@@ -26,12 +26,14 @@ public class UserService {
         return repository.findAll();
     }
 
-    public Optional<User> getById(Long id) {
-        return repository.findById(id);
+    public User getById(Long id) {
+        return repository.findById(id).orElseThrow(() -> 
+            new ResourceNotFoundException("User not found with id: " + id));
     }
 
-    public Optional<User> getByUsername(String username) {
-        return repository.findByUsername(username);
+    public User getByUsername(String username) {
+        return repository.findByUsername(username).orElseThrow(() -> 
+            new ResourceNotFoundException("User not found with username: " + username));
     }
 
     public User getCurrentUser() {
@@ -46,7 +48,6 @@ public class UserService {
         }
         
         user.setPassword(passwordEncoder.encode(user.getPassword()));
-        
         return repository.save(user);
     }
 
@@ -60,7 +61,6 @@ public class UserService {
             
             user.setName(userData.getName());
             // user.setEmail(userData.getEmail());
-            
             return repository.save(user);
         }).orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + id));
     }
