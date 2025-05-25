@@ -23,6 +23,11 @@ public class UserController {
 
     @Autowired
     private UserService service;
+
+    @GetMapping("/me")
+    public User getCurrentUser() {
+        return service.getCurrentUser();
+    }
     
     @GetMapping
     public List<User> getAllUsers() {

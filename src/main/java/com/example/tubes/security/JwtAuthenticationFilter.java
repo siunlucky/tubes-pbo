@@ -2,6 +2,7 @@ package com.example.tubes.security;
 
 import com.example.tubes.exception.UnauthorizedException;
 import com.example.tubes.repository.UserRepository;
+import com.example.tubes.services.AuthService; 
 import com.example.tubes.utils.JwtUtil;
 import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.FilterChain;
@@ -22,6 +23,9 @@ import java.util.List;
 
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
+    @Autowired
+    private AuthService authService;
+    
     @Override
     protected void doFilterInternal(
             HttpServletRequest request,
@@ -54,6 +58,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             jwt = authHeader.substring(7);
             
             try {
+                if (authService.isTokenBlacklisted(jwt)) {
+                    response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                    response.getWriter().write("Token has been invalidated");
+                    return;
+                }
+                
                 username = JwtUtil.extractUsername(jwt);
             } catch (ExpiredJwtException e) {
                 response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
