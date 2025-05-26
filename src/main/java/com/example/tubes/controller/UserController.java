@@ -45,7 +45,7 @@ public class UserController {
         return ResponseEntity.ok(ApiResponse.success(user, "User fetched successfully"));
     }
 
-    @GetMapping("/username")
+    @GetMapping("/{username}")
     public ResponseEntity<ApiResponse<User>> getUserByUsername(@RequestBody String username) {
         User user = service.getByUsername(username);
         return ResponseEntity.ok(ApiResponse.success(user, "User fetched successfully"));
