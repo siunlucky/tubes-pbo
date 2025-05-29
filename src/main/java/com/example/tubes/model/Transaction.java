@@ -3,14 +3,14 @@ package com.example.tubes.model;
 import jakarta.persistence.*;
 import java.util.Date;
 
-
 @Entity
 @Table(name = "transactions")
-@Inheritance(strategy = InheritanceType.JOINED)
+@Inheritance(strategy = InheritanceType.SINGLE_TABLE)
+@DiscriminatorColumn(name = "transaction_type", discriminatorType = DiscriminatorType.STRING)
 public abstract class Transaction {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Long id;    
 
     @Column(nullable = false)
     private double amount;
@@ -26,54 +26,55 @@ public abstract class Transaction {
     @JoinColumn(name = "wallet_id", nullable = false)
     private Wallet wallet;
 
-    public Transaction() {
-    }
+    public Transaction() {}
 
-    public Transaction(Long id, double amount, Date date, String desc) {
-        this.amount = amount;
-        this.date = date;
-        this.description = desc;
-    }
-
-    public Long getID() {
-        return this.id;
-    }
-
-    public void setID(Long id) {
+    public Transaction(Long id, double amount, Date date, String description) {
         this.id = id;
-    }
-
-    public double getAmount() {
-        return this.amount;
-    }
-    
-    public void setAmount(double amount) {
         this.amount = amount;
-    }
-
-    public Date getDate() {
-        return this.date;
-    }
-
-    public void setDate(Date date) {
         this.date = date;
-    }
-
-    public String getDescription() {
-        return this.description;
-    }
-
-    public void setDescription(String description) {
         this.description = description;
     }
 
+
     public abstract double getSummary();
 
-    public Wallet getWallet() {
-        return wallet;
+    public Long getId() { 
+        return id; 
     }
-    
-    public void setWallet(Wallet wallet) {
-        this.wallet = wallet;
+
+    public void setId(Long id) { 
+        this.id = id; 
+    }
+
+    public double getAmount() { 
+        return amount; 
+    }
+
+    public void setAmount(double amount) { 
+        this.amount = amount; 
+    }
+
+    public Date getDate() { 
+        return date; 
+    }
+
+    public void setDate(Date date) { 
+        this.date = date; 
+    }
+
+    public String getDescription() { 
+        return description; 
+    }
+
+    public void setDescription(String description) { 
+        this.description = description; 
+    }
+
+    public Wallet getWallet() { 
+        return wallet; 
+    }
+
+    public void setWallet(Wallet wallet) { 
+        this.wallet = wallet; 
     }
 }

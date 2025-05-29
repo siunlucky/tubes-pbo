@@ -1,15 +1,16 @@
 package com.example.tubes.services;
 
+import com.example.tubes.exception.NotFoundException;
 import com.example.tubes.exception.ResourceNotFoundException;
 import com.example.tubes.model.Transaction;
 import com.example.tubes.model.Wallet;
 import com.example.tubes.model.User;
 import com.example.tubes.repository.WalletRepository;
-import com.example.tubes.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 
 @Service
@@ -27,8 +28,15 @@ public class WalletService {
 
     public Wallet getWalletById(Long id) {
         User currentUser = userService.getCurrentUser();
-        return walletRepository.findByIdAndUserId(id, currentUser.getId())
-                .orElseThrow(() -> new ResourceNotFoundException("Wallet not found with id: " + id));
+        Optional<Wallet> walletOptional = walletRepository.findByIdAndUserId(id, currentUser.getId());
+        
+        if (walletOptional.isEmpty()) {
+            throw new NotFoundException("Wallet not found with id: " + id);
+        }
+
+        Wallet wallet = walletOptional.get();
+
+        return wallet;
     }
 
     public Wallet createWallet(Wallet wallet) {
@@ -68,7 +76,7 @@ public class WalletService {
     public void removeTransaction(Long walletId, Long transactionId) {
         Wallet wallet = getWalletById(walletId);
         wallet.getTransactions().stream()
-                .filter(t -> t.getID().equals(transactionId))
+                .filter(t -> t.getId().equals(transactionId))
                 .findFirst()
                 .ifPresent(wallet::removeTransaction);
         walletRepository.save(wallet);

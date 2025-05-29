@@ -6,6 +6,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 
 @Entity
 @Table(name = "wallets")
@@ -25,6 +27,7 @@ public class Wallet implements Exportable {
     private User user;
     
     @OneToMany(mappedBy = "wallet", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
     private List<Transaction> transactions = new ArrayList<>();
     
     public Wallet() {
@@ -127,7 +130,7 @@ public class Wallet implements Exportable {
         csv.append("id,date,description,amount,type,category,source/destination\n");
         
         for (Transaction transaction : transactions) {
-            csv.append(transaction.getID()).append(",");
+            csv.append(transaction.getId()).append(",");
             csv.append(transaction.getDate()).append(",");
             csv.append("\"").append(transaction.getDescription()).append("\",");
             csv.append(transaction.getAmount()).append(",");

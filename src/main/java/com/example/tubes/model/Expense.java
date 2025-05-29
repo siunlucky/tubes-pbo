@@ -1,47 +1,47 @@
 package com.example.tubes.model;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.DiscriminatorValue;
+import jakarta.persistence.Entity;
 import java.util.Date;
 
-
 @Entity
-@Table(name = "expenses")
+@DiscriminatorValue("EXPENSE")
 public class Expense extends Transaction {
-    @Column(nullable = false)
+    @Column(nullable = true)
     private String destination;
-    
-    @Column(nullable = false)
+
+    @Column(nullable = true)
     private String category;
-    
+
     public Expense() {
         super();
     }
 
-    public Expense (Long id, double amount, Date date, String desc, String destination, String category) {
-        super(id, amount, date, desc);
+    public Expense(Long id, double amount, Date date, String description, String destination, String category) {
+        super(id, amount, date, description);
         this.destination = destination;
         this.category = category;
     }
 
-    public String getDestination() {
-        return this.destination;
+    public String getDestination() { 
+        return destination; 
     }
 
-    public void setDestination(String destination) {
-        this.destination = destination;
+    public void setDestination(String destination) { 
+        this.destination = destination; 
     }
 
-    public String getCategory() {
-        return this.category;
+    public String getCategory() { 
+        return category; 
     }
 
-    public void setCategory(String category) {
-        this.category = category;
+    public void setCategory(String category) { 
+        this.category = category; 
     }
 
     @Override
     public double getSummary() {
-        return super.getAmount();
+        return getAmount();
     }
-    
 }
