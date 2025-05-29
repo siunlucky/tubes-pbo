@@ -26,6 +26,9 @@ public abstract class Transaction {
     @JoinColumn(name = "wallet_id", nullable = false)
     private Wallet wallet;
 
+    @Column(name = "transaction_type", insertable = false, updatable = false)
+    private String transactionType;
+
     public Transaction() {}
 
     public Transaction(Long id, double amount, Date date, String description) {
@@ -76,5 +79,9 @@ public abstract class Transaction {
 
     public void setWallet(Wallet wallet) { 
         this.wallet = wallet; 
+    }
+        
+    public String getTransactionType() {
+        return transactionType;
     }
 }
