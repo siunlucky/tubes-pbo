@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.example.tubes.dto.CategoryDTO;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 
@@ -31,7 +32,7 @@ public class Wallet implements Exportable {
     private List<Transaction> transactions = new ArrayList<>();
 
     @OneToMany(mappedBy = "wallet", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonIgnore
+    // @JsonIgnore
     private List<Category> categories = new ArrayList<>();
     
     public Wallet() {
@@ -40,6 +41,12 @@ public class Wallet implements Exportable {
     public Wallet(String name, double balance) {
         this.name = name;
         this.balance = balance; 
+    }
+
+    public List<CategoryDTO> getCategories() {
+        return categories.stream()
+                .map(category -> new CategoryDTO(category.getId(), category.getName()))
+                .toList();
     }
     
     public Long getId() {
