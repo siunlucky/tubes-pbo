@@ -23,4 +23,9 @@ public interface ExpenseRepository extends JpaRepository<Expense, Long> {
        "AND i.transactionType = 'EXPENSE' " +
        "AND EXTRACT(YEAR FROM i.date) = EXTRACT(YEAR FROM CURRENT_DATE)")
     Double sumByCurrentYearByWallet(Wallet wallet);
+
+    @Query("SELECT COALESCE(SUM(i.amount), 0) FROM Transaction i " +
+       "WHERE i.wallet = :wallet " +
+       "AND i.transactionType = 'EXPENSE'")
+    Double sumByWallet(Wallet wallet);
 }

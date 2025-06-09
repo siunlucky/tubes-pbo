@@ -2,11 +2,9 @@ package com.example.tubes.dto;
 
 import java.util.List;
 
-public class StatisticResponse {
+public class DashboardResponse {
     private Long walletId;
-    private Double totalTransaction;
-    private Double totalIncome;
-    private Double totalOutcome;
+    private Double totalBalance;
     
     private List<TransactionByTypeDTO> allTransactionByType;
     private List<TransactionByCategoryDTO> allTransactionByCategory;
@@ -35,27 +33,11 @@ public class StatisticResponse {
         this.walletId = walletId;
     }
 
-    public Double getTotalTransaction() {
-        return totalTransaction;
+    public Double getTotalBalance() {
+        return totalBalance;
     }
-
-    public void setTotalTransaction(Double totalTransaction) {
-        this.totalTransaction = totalTransaction;
-    }
-
-    public Double getTotalIncome() {
-        return totalIncome;
-    }
-
-    public void setTotalIncome(Double totalIncome) {
-        this.totalIncome = totalIncome;
-    }
-
-    public Double getTotalOutcome() {
-        return totalOutcome;
-    }
-
-    public void setTotalOutcome(Double totalOutcome) {
-        this.totalOutcome = totalOutcome;   
+    
+    public void setTotalBalance(Double totalBalance) {
+        this.totalBalance = totalBalance;
     }
 }

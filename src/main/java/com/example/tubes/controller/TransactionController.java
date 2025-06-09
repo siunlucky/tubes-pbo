@@ -1,5 +1,6 @@
 package com.example.tubes.controller;
 
+import com.example.tubes.dto.DashboardResponse;
 import com.example.tubes.dto.StatisticResponse;
 import com.example.tubes.dto.TransactionByCategoryDTO;
 import com.example.tubes.dto.TransactionByTypeDTO;
@@ -95,8 +96,38 @@ public class TransactionController {
         return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success(saved, "Expense created successfully"));
     }
 
+    @GetMapping("/dashboard")
+    public ResponseEntity<ApiResponse<DashboardResponse>> getDashboardData(@RequestParam Long walletId) {
+        Wallet wallet = walletService.getWalletById(walletId);
+
+        Double totalBalance = wallet.getMyMoney();
+
+        Double totalIncome = transactionService.getTotalIncome(wallet);
+        Double totalExpense = transactionService.getTotalExpense(wallet);
+        List<Object[]> rawCategoryData = transactionService.getTotalCategoryCurrentYear(wallet);
+
+        List<TransactionByCategoryDTO> allTransactionByCategory = rawCategoryData.stream()
+            .map(row -> new TransactionByCategoryDTO(
+                (String) row[0],
+                ((Long) row[1]).intValue()
+            ))
+            .toList();
+        
+        List<TransactionByTypeDTO> allTransactionByType = Arrays.asList(
+                new TransactionByTypeDTO("income", totalIncome),
+                new TransactionByTypeDTO("outcome", totalExpense)
+        );
+        DashboardResponse dashboardResponse = new DashboardResponse();
+        dashboardResponse.setAllTransactionByType(allTransactionByType);
+        dashboardResponse.setAllTransactionByCategory(allTransactionByCategory);
+        dashboardResponse.setWalletId(wallet.getId());
+        dashboardResponse.setTotalBalance(totalBalance);
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(ApiResponse.success(dashboardResponse, "Data for dashboard retrieved successfully"));
+    }
+
     @GetMapping("/statistics")
-    public ResponseEntity<ApiResponse<StatisticResponse>> getBarChartData(
+    public ResponseEntity<ApiResponse<StatisticResponse>> getStatisticData(
             @RequestParam Long walletId,
             @RequestParam Boolean isYear) {
 

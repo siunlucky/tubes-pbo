@@ -95,4 +95,16 @@ public class TransactionService {
     public List<Object[]> getTotalCategoryCurrentYear(Wallet wallet) {
         return transactionRepository.sumCategoryCurrentYearByWallet(wallet);
     }
+
+    public List<Object[]> getTotalCategory(Wallet wallet) {
+        return transactionRepository.sumCategoryByWallet(wallet);
+    }
+
+    public Double getTotalIncome(Wallet wallet) {
+        return incomeRepository.sumByWallet(wallet);
+    }
+
+    public Double getTotalExpense(Wallet wallet) {
+        return expenseRepository.sumByWallet(wallet);
+    }
 }

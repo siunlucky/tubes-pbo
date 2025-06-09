@@ -31,4 +31,13 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
         GROUP BY t.category
     """, nativeQuery = true)
     List<Object[]> sumCategoryCurrentYearByWallet(Wallet wallet);
+
+
+    @Query(value = """
+        SELECT t.category, COUNT(t.id) 
+        FROM transactions t 
+        WHERE t.wallet_id = :#{#wallet.id} 
+        GROUP BY t.category
+    """, nativeQuery = true)
+    List<Object[]> sumCategoryByWallet(@Param("wallet") Wallet wallet);
 }

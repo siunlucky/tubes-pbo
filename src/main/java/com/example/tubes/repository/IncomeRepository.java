@@ -23,4 +23,9 @@ public interface IncomeRepository extends JpaRepository<Income, Long> {
        "AND i.transactionType = 'INCOME' " +
        "AND EXTRACT(YEAR FROM i.date) = EXTRACT(YEAR FROM CURRENT_DATE)")
     Double sumByCurrentYearByWallet(Wallet wallet);
+
+    @Query("SELECT COALESCE(SUM(i.amount), 0) FROM Transaction i " +
+       "WHERE i.wallet = :wallet " +
+       "AND i.transactionType = 'INCOME'")
+    Double sumByWallet(Wallet wallet);
 }
