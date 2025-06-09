@@ -109,47 +109,9 @@ public class Wallet implements Exportable {
                 .mapToDouble(Transaction::getAmount)
                 .sum();
     }
-    
-    public Map<String, Object> showStatistics() {
-        double totalIncome = getTotalIncome();
-        double totalExpense = getTotalExpense();
-        
-        Map<String, Object> stats = new HashMap<>();
-        stats.put("walletName", name);
-        stats.put("currentBalance", balance);
-        stats.put("totalIncome", totalIncome);
-        stats.put("totalExpense", totalExpense);
-        stats.put("transactionCount", transactions.size());
-        
-        return stats;
-    }
 
     // @Override
     public String exportToCSV() {
-        StringBuilder csv = new StringBuilder();
-        csv.append("id,date,description,amount,type,category,source/destination\n");
-        
-        for (Transaction transaction : transactions) {
-            csv.append(transaction.getId()).append(",");
-            csv.append(transaction.getDate()).append(",");
-            csv.append("\"").append(transaction.getDescription()).append("\",");
-            csv.append(transaction.getAmount()).append(",");
-            
-            if (transaction instanceof Income) {
-                Income income = (Income) transaction;
-                csv.append("income,");
-                csv.append(income.getCategory()).append(",");
-                csv.append(income.getSource());
-            } else if (transaction instanceof Expense) {
-                Expense expense = (Expense) transaction;
-                csv.append("expense,");
-                csv.append(expense.getCategory()).append(",");
-                csv.append(expense.getDestination());
-            }
-            
-            csv.append("\n");
-        }
-        
-        return csv.toString();
+        return "Test";
     }
-}
+};
