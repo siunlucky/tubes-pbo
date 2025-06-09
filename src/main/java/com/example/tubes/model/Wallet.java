@@ -29,6 +29,10 @@ public class Wallet implements Exportable {
     @OneToMany(mappedBy = "wallet", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnore
     private List<Transaction> transactions = new ArrayList<>();
+
+    @OneToMany(mappedBy = "wallet", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
+    private List<Category> categories = new ArrayList<>();
     
     public Wallet() {
     }
@@ -68,6 +72,20 @@ public class Wallet implements Exportable {
     
     public void setUser(User user) {
         this.user = user;
+    }
+
+    public void setCategories(List<Category> categories) {
+        this.categories = categories;
+    }
+
+    public void addCategory(Category category) {
+        categories.add(category);
+        category.setWallet(this);
+    }
+
+    public void removeCategory(Category category) {
+        categories.remove(category);
+        category.setWallet(null);
     }
 
     public List<Transaction> getTransactions() {
