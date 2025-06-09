@@ -38,6 +38,18 @@ public class CategoryService {
         return category;
     }
 
+    public Category updateCategoryById(Long id, Category category, Wallet wallet) {
+        Optional<Category> categoryOptional = categoryRepository.findByIdAndWallet(id, wallet);
+        if (categoryOptional.isEmpty()) {
+            throw new NotFoundException("Category not found with id: " + id);
+        }
+
+        Category existingCategory = categoryOptional.get();
+        existingCategory.setName(category.getName());
+        
+        return categoryRepository.save(existingCategory);
+    }
+
     public Category saveCategory(Category category) {
         return categoryRepository.save(category);
     }
