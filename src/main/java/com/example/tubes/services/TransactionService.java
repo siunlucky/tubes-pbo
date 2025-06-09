@@ -71,4 +71,28 @@ public class TransactionService {
         Transaction transaction = getTransactionById(id, wallet);
         transactionRepository.delete(transaction);
     }
+
+    public Double getTotalCurrentMonthIncome(Wallet wallet) {
+        return incomeRepository.sumByCurrentMonthByWallet(wallet);
+    }
+
+    public Double getTotalCurrentMonthExpense(Wallet wallet) {
+        return expenseRepository.sumByCurrentMonthByWallet(wallet);
+    }
+
+    public Double getTotalCurrentYearExpense(Wallet wallet) {
+        return expenseRepository.sumByCurrentYearByWallet(wallet);
+    }
+
+    public Double getTotalCurrentYearIncome(Wallet wallet) {
+        return incomeRepository.sumByCurrentYearByWallet(wallet);
+    }
+
+    public List<Object[]> getTotalCategoryCurrentMonth(Wallet wallet) {
+        return transactionRepository.sumCategoryCurrentMonthByWallet(wallet);
+    }
+
+    public List<Object[]> getTotalCategoryCurrentYear(Wallet wallet) {
+        return transactionRepository.sumCategoryCurrentYearByWallet(wallet);
+    }
 }

@@ -105,11 +105,11 @@ public class User {
         wallet.setUser(null);
     }
     
-    public double getTotalExpense() {
-        return wallets.stream().mapToDouble(Wallet::getTotalExpense).sum();
-    }
+    // public double getTotalExpense() {
+    //     return wallets.stream().mapToDouble(Wallet::getTotalExpense).sum();
+    // }
     
-    public double getTotalIncome() {
-        return wallets.stream().mapToDouble(Wallet::getTotalIncome).sum();
-    }
+    // public double getTotalIncome() {
+    //     return wallets.stream().mapToDouble(Wallet::getTotalIncome).sum();
+    // }
 }

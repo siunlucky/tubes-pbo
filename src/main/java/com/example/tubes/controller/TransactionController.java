@@ -1,5 +1,8 @@
 package com.example.tubes.controller;
 
+import com.example.tubes.dto.StatisticResponse;
+import com.example.tubes.dto.TransactionByCategoryDTO;
+import com.example.tubes.dto.TransactionByTypeDTO;
 import com.example.tubes.exception.NotFoundException;
 import com.example.tubes.exception.ResourceNotFoundException;
 import com.example.tubes.model.Expense;
@@ -19,6 +22,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Arrays;
 import java.util.List;
 
 
@@ -35,7 +39,6 @@ public class TransactionController {
         this.transactionService = transactionService;
         this.walletService = walletService;
     }
-
 
     @GetMapping
     public ResponseEntity<ApiResponse<List<Transaction>>> getAllTransactions(@RequestParam Long walletId) {
@@ -90,5 +93,53 @@ public class TransactionController {
         expense.setWallet(wallet);
         Expense saved = transactionService.saveExpense(expense);
         return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success(saved, "Expense created successfully"));
+    }
+
+    @GetMapping("/statistics")
+    public ResponseEntity<ApiResponse<StatisticResponse>> getBarChartData(
+            @RequestParam Long walletId,
+            @RequestParam Boolean isYear) {
+
+        Wallet wallet = walletService.getWalletById(walletId);
+
+        Double totalIncome;
+        Double totalExpense;
+        List<Object[]> rawCategoryData;
+
+        if (Boolean.FALSE.equals(isYear)) {
+            totalIncome = transactionService.getTotalCurrentMonthIncome(wallet);
+            totalExpense = transactionService.getTotalCurrentMonthExpense(wallet);
+
+            rawCategoryData = transactionService.getTotalCategoryCurrentMonth(wallet);
+        } else {
+            totalIncome = transactionService.getTotalCurrentYearIncome(wallet);
+            totalExpense = transactionService.getTotalCurrentYearExpense(wallet);
+
+            rawCategoryData = transactionService.getTotalCategoryCurrentYear(wallet);
+        }
+
+        
+        List<TransactionByCategoryDTO> allTransactionByCategory = rawCategoryData.stream()
+            .map(row -> new TransactionByCategoryDTO(
+                (String) row[0],
+                ((Long) row[1]).intValue()
+            ))
+            .toList();
+
+        List<TransactionByTypeDTO> allTransactionByType = Arrays.asList(
+                new TransactionByTypeDTO("income", totalIncome),
+                new TransactionByTypeDTO("outcome", totalExpense)
+        );
+
+        StatisticResponse statisticResponse = new StatisticResponse();
+        statisticResponse.setAllTransactionByType(allTransactionByType);
+        statisticResponse.setAllTransactionByCategory(allTransactionByCategory);
+        statisticResponse.setWalletId(wallet.getId());
+        statisticResponse.setTotalTransaction(totalIncome + totalExpense);
+        statisticResponse.setTotalIncome(totalIncome);
+        statisticResponse.setTotalOutcome(totalExpense);
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(ApiResponse.success(statisticResponse, "Data for statistic retrieved successfully"));
     }
 }

@@ -43,7 +43,7 @@ public class Income extends Transaction {
     }
 
     @Override
-    public double getSummary() {
-        return -1 * getAmount(); // contoh implementasi
+    public double getValue() {
+        return getAmount(); // contoh implementasi
     }
 }

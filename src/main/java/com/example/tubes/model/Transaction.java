@@ -38,8 +38,7 @@ public abstract class Transaction {
         this.description = description;
     }
 
-
-    public abstract double getSummary();
+    public abstract double getValue();
 
     public Long getId() { 
         return id; 

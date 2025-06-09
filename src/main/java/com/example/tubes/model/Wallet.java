@@ -20,7 +20,7 @@ public class Wallet implements Exportable {
     private String name;
     
     @Column(nullable = false)
-    private double balance;
+    private Double balance;
     
     @ManyToOne
     @JoinColumn(name = "user_id")
@@ -74,44 +74,12 @@ public class Wallet implements Exportable {
         this.user = user;
     }
 
-    public void setCategories(List<Category> categories) {
-        this.categories = categories;
-    }
-
-    public void addCategory(Category category) {
-        categories.add(category);
-        category.setWallet(this);
-    }
-
-    public void removeCategory(Category category) {
-        categories.remove(category);
-        category.setWallet(null);
-    }
-
     public List<Transaction> getTransactions() {
         return transactions;
     }
-    
-    public void setTransactions(List<Transaction> transactions) {
-        this.transactions = transactions;
-    }
 
-    public void addTransaction(Transaction transaction) {
-        transactions.add(transaction);
-        transaction.setWallet(this);
-        calculateBalance();
-    }
-    
-    public void removeTransaction(Transaction transaction) {
-        transactions.remove(transaction);
-        transaction.setWallet(null);
-        calculateBalance();
-    }
-    
-    public void calculateBalance() {
-        double totalIncome = getTotalIncome();
-        double totalExpense = getTotalExpense();
-        this.balance = totalIncome - totalExpense;
+    public Double getMyMoney() {
+        return getTotalIncome() + getBalance() - getTotalExpense();
     }
     
     public double getTotalExpense() {

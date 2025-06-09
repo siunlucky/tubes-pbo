@@ -3,6 +3,7 @@ package com.example.tubes.controller;
 import com.example.tubes.model.Wallet;
 import com.example.tubes.services.WalletService;
 import com.example.tubes.utils.ApiResponse;
+import com.example.tubes.exception.BadRequestException;
 import com.example.tubes.exception.ResourceNotFoundException;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -55,9 +56,10 @@ public class WalletController {
     @PutMapping("/{id}")
     public ResponseEntity<ApiResponse<Wallet>> updateWallet(@PathVariable Long id, @RequestBody Wallet wallet) {
         try {
-            if (wallet.getId() != null && !wallet.getId().equals(id)) {
-                throw new RuntimeException("Wallet ID in the request body does not match the path variable");
+            if (wallet.getBalance() < 0){
+                throw new BadRequestException("Wallet balance must be greater or equal than zero");
             }
+    
             Wallet updatedWallet = walletService.updateWallet(id, wallet);
             return ResponseEntity.ok(ApiResponse.success(updatedWallet, "Wallet updated successfully"));
         } catch (RuntimeException e) {
@@ -75,15 +77,15 @@ public class WalletController {
         }
     }
 
-    @GetMapping("/{id}/balance")
-    public ResponseEntity<ApiResponse<Double>> getWalletBalance(@PathVariable Long id) {
-        try {
-            double balance = walletService.calculateWalletBalance(id);
-            return ResponseEntity.ok(ApiResponse.success(balance, "Wallet balance retrieved successfully"));
-        } catch (RuntimeException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ApiResponse.error(e.getMessage(), HttpStatus.NOT_FOUND.value()));
-        }
-    }
+    // @GetMapping("/{id}/balance")
+    // public ResponseEntity<ApiResponse<Double>> getWalletBalance(@PathVariable Long id) {
+    //     try {
+    //         double balance = walletService.calculateWalletBalance(id);
+    //         return ResponseEntity.ok(ApiResponse.success(balance, "Wallet balance retrieved successfully"));
+    //     } catch (RuntimeException e) {
+    //         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ApiResponse.error(e.getMessage(), HttpStatus.NOT_FOUND.value()));
+    //     }
+    // }
 
     @GetMapping("/{id}/expense")
     public ResponseEntity<ApiResponse<Double>> getTotalExpense(@PathVariable Long id) {

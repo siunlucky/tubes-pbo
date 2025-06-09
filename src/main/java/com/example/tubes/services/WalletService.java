@@ -51,10 +51,14 @@ public class WalletService {
 
     public Wallet updateWallet(Long id, Wallet walletData) {
         User currentUser = userService.getCurrentUser();
+        Wallet currentWallet = getWalletById(id);
+
         return walletRepository.findByIdAndUserId(id, currentUser.getId())
                 .map(wallet -> {
                     wallet.setName(walletData.getName());
-                    wallet.setBalance(walletData.getBalance());
+                    if (walletData.getBalance() > 0) {
+                        wallet.setBalance(walletData.getBalance() + currentWallet.getBalance());
+                    }
                     return walletRepository.save(wallet);
                 })
                 .orElseThrow(() -> new ResourceNotFoundException("Wallet not found with id: " + id));
@@ -65,27 +69,6 @@ public class WalletService {
         Wallet wallet = walletRepository.findByIdAndUserId(id, currentUser.getId())
                 .orElseThrow(() -> new ResourceNotFoundException("Wallet not found with id: " + id));
         walletRepository.delete(wallet);
-    }
-
-    public Wallet addTransaction(Long walletId, Transaction transaction) {
-        Wallet wallet = getWalletById(walletId);
-        wallet.addTransaction(transaction);
-        return walletRepository.save(wallet);
-    }
-
-    public void removeTransaction(Long walletId, Long transactionId) {
-        Wallet wallet = getWalletById(walletId);
-        wallet.getTransactions().stream()
-                .filter(t -> t.getId().equals(transactionId))
-                .findFirst()
-                .ifPresent(wallet::removeTransaction);
-        walletRepository.save(wallet);
-    }
-
-    public double calculateWalletBalance(Long walletId) {
-        Wallet wallet = getWalletById(walletId);
-        wallet.calculateBalance();
-        return walletRepository.save(wallet).getBalance();
     }
     
     public double getTotalExpense(Long walletId) {
