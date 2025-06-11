@@ -40,4 +40,15 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
         GROUP BY t.category
     """, nativeQuery = true)
     List<Object[]> sumCategoryByWallet(@Param("wallet") Wallet wallet);
+
+       @Query("SELECT i FROM Transaction i " +
+       "WHERE i.wallet = :wallet " +
+       "AND EXTRACT(MONTH FROM i.date) = EXTRACT(MONTH FROM CURRENT_DATE) " +
+       "AND EXTRACT(YEAR FROM i.date) = EXTRACT(YEAR FROM CURRENT_DATE)")
+    List<Transaction> getAllTransactionCurrentMonthByWallet(Wallet wallet);  
+    
+      @Query("SELECT i FROM Transaction i " +
+         "WHERE i.wallet = :wallet " +
+         "AND EXTRACT(YEAR FROM i.date) = EXTRACT(YEAR FROM CURRENT_DATE)")
+      List<Transaction> getAllTransactionCurrentYearByWallet(Wallet wallet);
 }

@@ -1,8 +1,12 @@
 package com.example.tubes.controller;
 
 import com.example.tubes.model.Wallet;
+import com.example.tubes.services.TransactionService;
 import com.example.tubes.services.WalletService;
 import com.example.tubes.utils.ApiResponse;
+
+import jakarta.servlet.http.HttpServletResponse;
+
 import com.example.tubes.exception.BadRequestException;
 import com.example.tubes.exception.ResourceNotFoundException;
 
@@ -14,11 +18,20 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 
+
 @RestController
 @RequestMapping("/api/wallets")
 public class WalletController {
-    @Autowired
-    private WalletService walletService;
+    private final WalletService walletService;
+    private final TransactionService transactionService;
+
+    public WalletController(
+        WalletService walletService,
+        TransactionService transactionService
+    ) {
+        this.walletService = walletService;
+        this.transactionService = transactionService;
+    }
     
     @GetMapping
     public ResponseEntity<ApiResponse<List<Wallet>>> getAllWallets() {
@@ -104,6 +117,44 @@ public class WalletController {
             return ResponseEntity.ok(ApiResponse.success(income, "Total income retrieved successfully"));
         } catch (RuntimeException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ApiResponse.error(e.getMessage(), HttpStatus.NOT_FOUND.value()));
+        }
+    }
+
+    @GetMapping("/export-csv/{id}")
+    public void exportCsvTransaction(
+        @PathVariable Long id,
+        @RequestParam Boolean isYear,
+        HttpServletResponse response
+    ) {
+        response.setContentType("text/csv");
+        String headerKey = "Content-Disposition";
+        String headerValue = "attachment; filename=transactions.csv";
+        response.setHeader(headerKey, headerValue);
+
+        Wallet wallet = walletService.getWalletById(id);
+
+        try {
+            transactionService.writeToCsv(response.getWriter(), wallet, isYear);
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to export transactions", e);
+        }
+    }
+
+    @GetMapping("/export-excel/{id}")
+    public void exportTransactionExcel(
+        @PathVariable Long id,
+        @RequestParam Boolean isYear,
+        HttpServletResponse response
+    ) {
+        response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+        response.setHeader("Content-Disposition", "attachment; filename=transactions.xlsx");
+
+        Wallet wallet = walletService.getWalletById(id);
+
+        try {
+            transactionService.writeToExcel(response.getOutputStream(), wallet, isYear);
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to export Excel", e);
         }
     }
 }

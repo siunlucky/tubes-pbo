@@ -8,8 +8,18 @@ import com.example.tubes.model.Wallet;
 import com.example.tubes.repository.ExpenseRepository;
 import com.example.tubes.repository.IncomeRepository;
 import com.example.tubes.repository.TransactionRepository;
-import org.springframework.stereotype.Service;
+import com.opencsv.CSVWriter;
 
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.springframework.stereotype.Service;
+import org.apache.poi.ss.usermodel.*;
+
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.PrintWriter;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -106,5 +116,71 @@ public class TransactionService {
 
     public Double getTotalExpense(Wallet wallet) {
         return expenseRepository.sumByWallet(wallet);
+    }
+
+    public void writeToCsv(PrintWriter writer, Wallet wallet, Boolean isYear) {
+        CSVWriter csvWriter = new CSVWriter(writer);
+        String[] header = { "Nama Wallet", "Tanggal", "Amount", "Tipe Transaksi", "Jenis Kategori" };
+        csvWriter.writeNext(header);
+
+        List<Transaction> transactions;
+        if (isYear) {
+            transactions = transactionRepository.getAllTransactionCurrentYearByWallet(wallet);
+        } else {
+            transactions = transactionRepository.getAllTransactionCurrentMonthByWallet(wallet);
+        }
+        
+        System.out.println(transactions);
+        for (Transaction transaction : transactions) {
+            csvWriter.writeNext(new String[] {
+                wallet.getName(),
+                transaction.getDate().toString(),
+                String.valueOf(transaction.getAmount()),
+                transaction.getTransactionType(),
+                "N/A"
+            });
+        }
+
+        try {
+            csvWriter.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void writeToExcel(OutputStream out, Wallet wallet, boolean isYear) throws IOException {
+        Workbook workbook = new XSSFWorkbook();
+        Sheet sheet = workbook.createSheet("Transactions");
+
+        // Header
+        Row header = sheet.createRow(0);
+        String[] columns = { "Nama Wallet", "Tanggal", "Amount", "Tipe Transaksi", "Jenis Kategori" };
+        for (int i = 0; i < columns.length; i++) {
+            Cell cell = header.createCell(i);
+            cell.setCellValue(columns[i]);
+        }
+
+        // Get data
+        List<Transaction> transactions = isYear
+                ?  transactionRepository.getAllTransactionCurrentYearByWallet(wallet)
+                :  transactionRepository.getAllTransactionCurrentMonthByWallet(wallet);
+
+        int rowIdx = 1;
+        for (Transaction t : transactions) {
+            Row row = sheet.createRow(rowIdx++);
+
+            row.createCell(0).setCellValue(wallet.getName());
+            row.createCell(1).setCellValue(t.getDate().toString());
+            row.createCell(2).setCellValue(String.valueOf(t.getAmount()));
+            row.createCell(3).setCellValue(t.getTransactionType());
+            row.createCell(4).setCellValue("N/A");
+        }
+
+        for (int i = 0; i < columns.length; i++) {
+            sheet.autoSizeColumn(i);
+        }
+
+        workbook.write(out);
+        workbook.close();
     }
 }
