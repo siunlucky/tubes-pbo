@@ -11,6 +11,8 @@ import com.example.tubes.exception.BadRequestException;
 import com.example.tubes.exception.ResourceNotFoundException;
 
 import org.springframework.http.HttpStatus;
+import com.example.tubes.model.Exportable;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -20,7 +22,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/wallets")
-public class WalletController {
+public class WalletController implements Exportable {
     private final WalletService walletService;
     private final TransactionService transactionService;
 
