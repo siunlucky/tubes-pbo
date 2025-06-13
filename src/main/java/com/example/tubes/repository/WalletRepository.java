@@ -11,7 +11,6 @@ import com.example.tubes.model.Wallet;
 @Repository
 public interface WalletRepository extends JpaRepository<Wallet, Long> {
     List<Wallet> findByUser(User user);
-    List<Wallet> findByUserId(Long userId);
     Optional<Wallet> findByIdAndUserId(Long id, Long userId);
     boolean existsByNameAndUserId(String name, Long userId);
 }

@@ -12,18 +12,11 @@ import com.example.tubes.model.Transaction;
 import com.example.tubes.model.Wallet;
 import com.example.tubes.utils.ApiResponse;
 
-import jakarta.servlet.http.HttpServletResponse;
-
 import com.example.tubes.services.TransactionService;
-import com.example.tubes.services.UserService;
 import com.example.tubes.services.WalletService;
 
-import org.hibernate.annotations.Parameter;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.repository.query.Param;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Arrays;

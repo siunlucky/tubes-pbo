@@ -6,7 +6,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
 import com.example.tubes.model.Expense;
-import com.example.tubes.model.Transaction;
 import com.example.tubes.model.Wallet;
 
 public interface ExpenseRepository extends JpaRepository<Expense, Long> {

@@ -2,7 +2,6 @@ package com.example.tubes.services;
 
 import com.example.tubes.exception.NotFoundException;
 import com.example.tubes.exception.ResourceNotFoundException;
-import com.example.tubes.model.Transaction;
 import com.example.tubes.model.Wallet;
 import com.example.tubes.model.User;
 import com.example.tubes.repository.WalletRepository;
@@ -15,11 +14,14 @@ import java.util.Optional;
 
 @Service
 public class WalletService {
-    @Autowired
-    private WalletRepository walletRepository;
 
-    @Autowired
-    private UserService userService;
+    private final WalletRepository walletRepository;
+    private final UserService userService;
+
+    public WalletService(WalletRepository walletRepository, UserService userService) {
+        this.walletRepository = walletRepository;
+        this.userService = userService;
+    }
 
     public List<Wallet> getAllWallets() {
         User currentUser = userService.getCurrentUser();

@@ -6,7 +6,6 @@ import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import com.example.tubes.model.Category;
-import com.example.tubes.model.Transaction;
 import com.example.tubes.model.Wallet;
 
 public interface CategoryRepository extends JpaRepository<Category, Long> {

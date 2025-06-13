@@ -17,11 +17,13 @@ import com.example.tubes.utils.JwtUtil;
 
 @Service
 public class AuthService {
-    @Autowired
-    private UserRepository userRepository;
+    private final UserRepository userRepository;
+    private final TokenBlacklistRepository tokenBlacklistRepository;
 
-    @Autowired
-    private TokenBlacklistRepository tokenBlacklistRepository;
+    public AuthService(UserRepository userRepository, TokenBlacklistRepository tokenBlacklistRepository) {
+        this.userRepository = userRepository;
+        this.tokenBlacklistRepository = tokenBlacklistRepository;
+    }
 
     @Scheduled(cron = "0 0 1 * * ?")
     public void cleanupExpiredTokens() {
@@ -86,15 +88,5 @@ public class AuthService {
 
     private boolean matchPassword(String password, String hashedPassword) {
         return new BCryptPasswordEncoder().matches(password, hashedPassword);
-    }
-
-    public boolean reqResetPassword(String email) {
-        // masih bingung iki
-        return true;
-    }
-    
-    public boolean resetPassword(String otp, String email, String newPassword) {
-        // masih bingung iki
-        return true;
     }
 };
