@@ -14,8 +14,13 @@ import com.example.tubes.services.AuthService;
 @RestController
 @RequestMapping("/api/auth")
 public class AuthController {
-    @Autowired
-    private AuthService authService;
+    private final AuthService authService;
+
+    public AuthController(
+        AuthService authService
+    ) {
+        this.authService = authService;
+    }
 
     @PostMapping("/register")
     public String register(@RequestBody User user) {

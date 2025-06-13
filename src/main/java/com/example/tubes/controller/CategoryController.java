@@ -53,15 +53,7 @@ public class CategoryController {
 
         return ResponseEntity.ok(ApiResponse.success(category, "Category retrieved successfully"));
     }
-
-    @PutMapping("/{id}")
-    public ResponseEntity<ApiResponse<Category>> updateCategoryById(@PathVariable Long id, @RequestBody Category category, @RequestParam Long walletId) {
-        Wallet wallet = walletService.getWalletById(walletId);
-
-        Category updated = categoryService.updateCategoryById(id, category, wallet);
-        return ResponseEntity.ok(ApiResponse.success(updated, "Category updated successfully"));
-    }
-
+    
     @PostMapping
     public ResponseEntity<ApiResponse<Category>> createCategory(@RequestBody Category category) {
         Wallet wallet = walletService.getWalletById(category.getWallet().getId());

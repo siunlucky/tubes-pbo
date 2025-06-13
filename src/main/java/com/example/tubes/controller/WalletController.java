@@ -90,16 +90,6 @@ public class WalletController {
         }
     }
 
-    // @GetMapping("/{id}/balance")
-    // public ResponseEntity<ApiResponse<Double>> getWalletBalance(@PathVariable Long id) {
-    //     try {
-    //         double balance = walletService.calculateWalletBalance(id);
-    //         return ResponseEntity.ok(ApiResponse.success(balance, "Wallet balance retrieved successfully"));
-    //     } catch (RuntimeException e) {
-    //         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ApiResponse.error(e.getMessage(), HttpStatus.NOT_FOUND.value()));
-    //     }
-    // }
-
     @GetMapping("/{id}/expense")
     public ResponseEntity<ApiResponse<Double>> getTotalExpense(@PathVariable Long id) {
         try {
@@ -117,26 +107,6 @@ public class WalletController {
             return ResponseEntity.ok(ApiResponse.success(income, "Total income retrieved successfully"));
         } catch (RuntimeException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ApiResponse.error(e.getMessage(), HttpStatus.NOT_FOUND.value()));
-        }
-    }
-
-    @GetMapping("/export-csv/{id}")
-    public void exportCsvTransaction(
-        @PathVariable Long id,
-        @RequestParam Boolean isYear,
-        HttpServletResponse response
-    ) {
-        response.setContentType("text/csv");
-        String headerKey = "Content-Disposition";
-        String headerValue = "attachment; filename=transactions.csv";
-        response.setHeader(headerKey, headerValue);
-
-        Wallet wallet = walletService.getWalletById(id);
-
-        try {
-            transactionService.writeToCsv(response.getWriter(), wallet, isYear);
-        } catch (Exception e) {
-            throw new RuntimeException("Failed to export transactions", e);
         }
     }
 

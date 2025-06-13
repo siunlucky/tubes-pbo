@@ -23,49 +23,15 @@ import org.springframework.web.bind.annotation.RequestBody;
 @RestController
 @RequestMapping("/api/users")
 public class UserController {
+    private final UserService userService;
 
-    @Autowired
-    private UserService service;
+    public UserController(UserService userService) {
+        this.userService = userService;
+    }
 
     @GetMapping("/me")
     public ResponseEntity<ApiResponse<User>> getCurrentUser() {
-        User user = service.getCurrentUser();
+        User user = this.userService.getCurrentUser();
         return ResponseEntity.ok(ApiResponse.success(user, "Current user fetched successfully"));
-    }
-    
-    @GetMapping
-    public ResponseEntity<ApiResponse<List<User>>> getAllUsers() {
-        List<User> users = service.getAll();
-        return ResponseEntity.ok(ApiResponse.success(users, "All users fetched successfully"));
-    }
-
-    @GetMapping("/{id}")
-    public ResponseEntity<ApiResponse<User>> getUserById(@PathVariable Long id) {
-        User user = service.getById(id);
-        return ResponseEntity.ok(ApiResponse.success(user, "User fetched successfully"));
-    }
-
-    @GetMapping("/{username}")
-    public ResponseEntity<ApiResponse<User>> getUserByUsername(@RequestBody String username) {
-        User user = service.getByUsername(username);
-        return ResponseEntity.ok(ApiResponse.success(user, "User fetched successfully"));
-    }
-
-    @PostMapping
-    public ResponseEntity<ApiResponse<User>> createUser(@RequestBody User user) {
-        User createdUser = service.create(user);
-        return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success(createdUser, "User created successfully", 201));
-    }
-
-    @PutMapping("/{id}")
-    public ResponseEntity<ApiResponse<User>> updateUser(@PathVariable Long id, @RequestBody User user) {
-        User updatedUser = service.update(id, user);
-        return ResponseEntity.ok(ApiResponse.success(updatedUser, "User updated successfully"));    
-    }
-
-    @DeleteMapping("/{id}")
-    public ResponseEntity<ApiResponse<Void>> deleteUser(@PathVariable Long id) {
-        service.delete(id);
-        return ResponseEntity.ok(ApiResponse.success(null, "User deleted successfully"));   
     }
 }
