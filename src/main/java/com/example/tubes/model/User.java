@@ -79,14 +79,6 @@ public class User {
         this.name = name;
     }
 
-    // public String getEmail() {
-    //     return email;
-    // }
-    
-    // public void setEmail(String email) {
-    //     this.email = email;
-    // }
-
     public List<Wallet> getWallets() {
         return wallets;
     }
@@ -104,12 +96,4 @@ public class User {
         wallets.remove(wallet);
         wallet.setUser(null);
     }
-    
-    // public double getTotalExpense() {
-    //     return wallets.stream().mapToDouble(Wallet::getTotalExpense).sum();
-    // }
-    
-    // public double getTotalIncome() {
-    //     return wallets.stream().mapToDouble(Wallet::getTotalIncome).sum();
-    // }
 }
