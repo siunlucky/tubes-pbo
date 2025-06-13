@@ -5,7 +5,6 @@ import com.example.tubes.exception.ResourceNotFoundException;
 import com.example.tubes.model.Wallet;
 import com.example.tubes.model.User;
 import com.example.tubes.repository.WalletRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;

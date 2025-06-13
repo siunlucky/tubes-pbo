@@ -4,8 +4,6 @@ import com.example.tubes.dto.DashboardResponse;
 import com.example.tubes.dto.StatisticResponse;
 import com.example.tubes.dto.TransactionByCategoryDTO;
 import com.example.tubes.dto.TransactionByTypeDTO;
-import com.example.tubes.exception.NotFoundException;
-import com.example.tubes.exception.ResourceNotFoundException;
 import com.example.tubes.model.Expense;
 import com.example.tubes.model.Income;
 import com.example.tubes.model.Transaction;

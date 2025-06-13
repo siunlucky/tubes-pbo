@@ -2,9 +2,7 @@ package com.example.tubes.model;
 
 import jakarta.persistence.*;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import com.example.tubes.dto.CategoryDTO;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -12,7 +10,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Entity
 @Table(name = "wallets")
-public class Wallet implements Exportable {
+public class Wallet{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -101,10 +99,5 @@ public class Wallet implements Exportable {
                 .filter(t -> t instanceof Income)
                 .mapToDouble(Transaction::getAmount)
                 .sum();
-    }
-
-    // @Override
-    public String exportToCSV() {
-        return "Test";
     }
 };
