@@ -44,6 +44,6 @@ public class Income extends Transaction {
 
     @Override
     public double getValue() {
-        return getAmount(); // contoh implementasi
+        return getAmount();
     }
 }

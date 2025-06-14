@@ -63,7 +63,7 @@ public class TransactionService {
     }
 
     public Income saveIncome(Income income) {
-        income.setDate(new Date());
+        income.setDate(new Date(income.getDate()));
         return incomeRepository.save(income);
     }
 

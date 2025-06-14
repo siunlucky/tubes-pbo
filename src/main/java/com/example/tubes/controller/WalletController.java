@@ -90,26 +90,6 @@ public class WalletController {
         }
     }
 
-    @GetMapping("/{id}/expense")
-    public ResponseEntity<ApiResponse<Double>> getTotalExpense(@PathVariable Long id) {
-        try {
-            double expense = walletService.getTotalExpense(id);
-            return ResponseEntity.ok(ApiResponse.success(expense, "Total expense retrieved successfully"));
-        } catch (RuntimeException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ApiResponse.error(e.getMessage(), HttpStatus.NOT_FOUND.value()));
-        }
-    }
-
-    @GetMapping("/{id}/income")
-    public ResponseEntity<ApiResponse<Double>> getTotalIncome(@PathVariable Long id) {
-        try {
-            double income = walletService.getTotalIncome(id);
-            return ResponseEntity.ok(ApiResponse.success(income, "Total income retrieved successfully"));
-        } catch (RuntimeException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ApiResponse.error(e.getMessage(), HttpStatus.NOT_FOUND.value()));
-        }
-    }
-
     @GetMapping("/export-excel/{id}")
     public void exportTransactionExcel(
         @PathVariable Long id,
