@@ -1,10 +1,7 @@
 package com.example.tubes.services;
 
 import com.example.tubes.exception.NotFoundException;
-import com.example.tubes.exception.ResourceNotFoundException;
 import com.example.tubes.model.Category;
-import com.example.tubes.model.Transaction;
-import com.example.tubes.model.User;
 import com.example.tubes.model.Wallet;
 
 import java.util.List;

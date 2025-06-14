@@ -8,7 +8,6 @@ import com.example.tubes.model.Wallet;
 import com.example.tubes.repository.ExpenseRepository;
 import com.example.tubes.repository.IncomeRepository;
 import com.example.tubes.repository.TransactionRepository;
-import com.opencsv.CSVWriter;
 
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
@@ -19,8 +18,6 @@ import org.apache.poi.ss.usermodel.*;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.io.PrintWriter;
-import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -63,12 +60,10 @@ public class TransactionService {
     }
 
     public Income saveIncome(Income income) {
-        income.setDate(new Date(income.getDate()));
         return incomeRepository.save(income);
     }
 
     public Expense saveExpense(Expense expense) {
-        expense.setDate(new Date());
         return expenseRepository.save(expense);
     }
 
@@ -136,7 +131,9 @@ public class TransactionService {
             row.createCell(1).setCellValue(t.getDate().toString());
             row.createCell(2).setCellValue(String.valueOf(t.getAmount()));
             row.createCell(3).setCellValue(t.getTransactionType());
-            row.createCell(4).setCellValue("N/A");
+            row.createCell(4).setCellValue(
+                t instanceof Income ? ((Income) t).getCategory() : ((Expense) t).getCategory()
+            );
         }
 
         for (int i = 0; i < columns.length; i++) {
